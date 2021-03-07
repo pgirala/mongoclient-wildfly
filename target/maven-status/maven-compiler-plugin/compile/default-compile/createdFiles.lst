@@ -1,0 +1,5 @@
+org\acme\JaxRsActivator.class
+org\acme\CustomerService.class
+org\acme\Customer.class
+org\acme\MongoDBProducer.class
+org\acme\CustomerEndpoint.class
