@@ -1,4 +1,4 @@
-package org.acme;
+package org.igae.servicio;
 
 
 import com.mongodb.*;
@@ -24,18 +24,13 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Updates.set;
 
+import org.igae.modelo.Usuario;
+
 @ApplicationScoped
 public class UsuarioService {
 
     @Inject
     MongoDatabase mongoDB;
-    
-    Block<Document> printBlock = new Block<Document>() {
-        @Override
-        public void apply(final Document document) {
-            System.out.println(document.toJson());
-        }
-    };
 
     public List<Usuario> list(){
         List<Usuario> list = new ArrayList<>();

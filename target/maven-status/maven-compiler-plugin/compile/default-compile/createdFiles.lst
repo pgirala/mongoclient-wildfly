@@ -1,6 +1,5 @@
-org\acme\Usuario.class
-org\acme\UsuarioEndpoint.class
-org\acme\JaxRsActivator.class
-org\acme\UsuarioService$1.class
-org\acme\UsuarioService.class
-org\acme\MongoDBProducer.class
+org\igae\controlador\UsuarioEndpoint.class
+org\igae\modelo\Usuario.class
+org\igae\JaxRsActivator.class
+org\igae\persistencia\MongoDBProducer.class
+org\igae\servicio\UsuarioService.class

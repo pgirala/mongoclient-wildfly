@@ -1,9 +1,12 @@
-package org.acme;
+package org.igae.controlador;
 
 import javax.inject.Inject;
 
 import javax.ws.rs.*;
 import java.util.List;
+
+import org.igae.servicio.UsuarioService;
+import org.igae.modelo.Usuario;
 
 @Path("/usuarios")
 @Produces("application/json")

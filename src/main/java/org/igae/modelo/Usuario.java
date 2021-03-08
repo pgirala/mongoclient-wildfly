@@ -1,7 +1,4 @@
-package org.acme;
-
-
-
+package org.igae.modelo;
 
 public class Usuario {
     private String email;

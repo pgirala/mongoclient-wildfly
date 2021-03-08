@@ -1,4 +1,4 @@
-package org.acme;
+package org.igae.persistencia;
 
 import com.mongodb.MongoClient;
 import com.mongodb.MongoClientURI;
