@@ -1,5 +1,7 @@
 C:\mongoclient-wildfly\src\main\java\org\igae\controlador\UsuarioEndpoint.java
 C:\mongoclient-wildfly\src\main\java\org\igae\JaxRsActivator.java
 C:\mongoclient-wildfly\src\main\java\org\igae\modelo\Usuario.java
+C:\mongoclient-wildfly\src\main\java\org\igae\modelo\Envio.java
 C:\mongoclient-wildfly\src\main\java\org\igae\servicio\UsuarioService.java
+C:\mongoclient-wildfly\src\main\java\org\igae\controlador\EnvioEndpoint.java
 C:\mongoclient-wildfly\src\main\java\org\igae\persistencia\MongoDBProducer.java
