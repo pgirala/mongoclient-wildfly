@@ -17,7 +17,7 @@ public class MongoDBProducer {
     @Produces
     public MongoClient createMongo() {
         return new MongoClient("mongo", 27017);
-/    }
+    }
 
     @Produces
     public MongoDatabase createDB(MongoClient client) {

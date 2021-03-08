@@ -1,46 +1,65 @@
 package org.acme;
 
 
+import com.mongodb.*;
+import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoCursor;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.MongoCursor;
+import com.mongodb.client.model.Projections;
+import com.mongodb.client.model.Filters;
+import static com.mongodb.client.model.Filters.*;
+import static com.mongodb.client.model.Projections.*;
+import com.mongodb.client.model.Sorts;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 
 import javax.enterprise.context.ApplicationScoped;
 import javax.inject.Inject;
+import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
 
 import static com.mongodb.client.model.Filters.eq;
+import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Updates.set;
 
 @ApplicationScoped
-public class CustomerService {
+public class UsuarioService {
 
     @Inject
     MongoDatabase mongoDB;
+    
+    Block<Document> printBlock = new Block<Document>() {
+        @Override
+        public void apply(final Document document) {
+            System.out.println(document.toJson());
+        }
+    };
 
-    public List<Customer> list(){
-        List<Customer> list = new ArrayList<>();
-        MongoCursor<Document> cursor = getCollection().find().iterator();
+    public List<Usuario> list(){
+        List<Usuario> list = new ArrayList<>();
+        Bson filter = exists("data.password");
+        MongoCursor<Document> cursor = getCollection().find(filter).iterator();
 
         try {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
-                Customer customer = new Customer();
-                customer.setSurname(document.getString("surname"));
-                customer.setName(document.getString("name"));
-                customer.setId(document.getLong("id"));
-                list.add(customer);
+                Usuario usuario = new Usuario();
+                usuario.setEmail(document.get("data", Document.class).getString("email"));
+                System.out.println("===============================");
+                System.out.println(document.toString());
+                System.out.println("===============================");
+                list.add(usuario);
             }
         } finally {
             cursor.close();
         }
+        
         return list;
     }
-
-    public void add(Customer customer){
+/*
+    public void add(Usuario usuario){
         Document document = new Document()
                 .append("name", customer.getName())
                 .append("surname", customer.getSurname())
@@ -62,7 +81,9 @@ public class CustomerService {
         Bson filter = eq("id", customer.getId());
         getCollection().deleteOne(filter);
     }
+
+*/
     private MongoCollection getCollection(){
-        return mongoDB.getCollection("customers");
+        return mongoDB.getCollection("submissions");
     }
 }

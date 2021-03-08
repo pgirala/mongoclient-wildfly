@@ -1,5 +1,5 @@
 C:\mongoclient-wildfly\src\main\java\org\acme\MongoDBProducer.java
-C:\mongoclient-wildfly\src\main\java\org\acme\Customer.java
-C:\mongoclient-wildfly\src\main\java\org\acme\CustomerService.java
-C:\mongoclient-wildfly\src\main\java\org\acme\CustomerEndpoint.java
+C:\mongoclient-wildfly\src\main\java\org\acme\UsuarioEndpoint.java
+C:\mongoclient-wildfly\src\main\java\org\acme\UsuarioService.java
 C:\mongoclient-wildfly\src\main\java\org\acme\JaxRsActivator.java
+C:\mongoclient-wildfly\src\main\java\org\acme\Usuario.java
