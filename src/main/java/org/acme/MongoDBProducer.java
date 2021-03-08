@@ -1,6 +1,7 @@
 package org.acme;
 
 import com.mongodb.MongoClient;
+import com.mongodb.MongoClientURI;
 import com.mongodb.MongoClientOptions;
 import com.mongodb.ServerAddress;
 
@@ -15,12 +16,12 @@ public class MongoDBProducer {
 
     @Produces
     public MongoClient createMongo() {
-        return new MongoClient(new ServerAddress(), new MongoClientOptions.Builder().build());
-    }
+        return new MongoClient("mongo", 27017);
+/    }
 
     @Produces
     public MongoDatabase createDB(MongoClient client) {
-        return client.getDatabase("testdb");
+        return client.getDatabase("formio");
     }
 
     public void close(@Disposes MongoClient toClose) {
