@@ -24,6 +24,7 @@ import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.ne;
 import static com.mongodb.client.model.Filters.exists;
 import static com.mongodb.client.model.Updates.set;
+import com.mongodb.client.result.DeleteResult;
 
 import org.igae.modelo.Envio;
 
@@ -34,18 +35,33 @@ public class EnvioService {
     MongoDatabase mongoDB;
 
     public void addEnvio(Envio envio) {
-        System.out.println("=========================<");
-        System.out.println(envio.toString());
-        System.out.println("=========================>");
-        List<Document> listaDocumentos = getListaDocumentos(envio.getIdRemitente());
-        System.out.println("=====>Número de documentos: " + listaDocumentos.size());
+        eliminarDocumentosEnviosPrevios(envio.getIdRemitente(), envio.getIdDestinatario());
+        List<Document> listaDocumentos = getListaDocumentosPoseidos(envio.getIdRemitente());
+        System.out.println("=====>Número de documentos poseidos: " + listaDocumentos.size());
     }
 
-    public List<Document> getListaDocumentos(String idPropietario) {
+    public List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
+        Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
+                eq("deleted", null));
+        return this.getListaDocumentos(filtro);
+    }
+
+    public void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
+        Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
+                eq("deleted", null));
+        DeleteResult dr = getCollection().deleteMany(filtro);
+        System.out.println("====================>Borrados: " + dr.getDeletedCount());
+    }
+
+    public List<Document> getListaDocumentosPoseidos(String idPropietario) {
+        Bson filtro = and(eq("owner", new ObjectId(idPropietario)), eq("deleted", null));
+        return this.getListaDocumentos(filtro);
+    }
+
+    public List<Document> getListaDocumentos(Bson filtro) {
         List<Document> resultado = new ArrayList<>();
 
-        Bson filter = and(eq("owner", new ObjectId(idPropietario)), eq("deleted", null));
-        MongoCursor<Document> cursor = getCollection().find(filter).iterator();
+        MongoCursor<Document> cursor = getCollection().find(filtro).iterator();
 
         try {
             while (cursor.hasNext()) {
