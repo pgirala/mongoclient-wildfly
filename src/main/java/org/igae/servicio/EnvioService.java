@@ -19,6 +19,7 @@ import javax.inject.Inject;
 import java.util.Arrays;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Hashtable;
 
 import static com.mongodb.client.model.Filters.eq;
 import static com.mongodb.client.model.Filters.ne;
@@ -38,31 +39,60 @@ public class EnvioService {
 
     public void addEnvio(Envio envio) {
         eliminarDocumentosEnviosPrevios(envio.getIdRemitente(), envio.getIdDestinatario());
-        List<Document> listaDocumentos = getListaDocumentosPoseidos(envio.getIdRemitente());
-        System.out.println("=====>Número de documentos poseidos: " + listaDocumentos.size());
+        Hashtable<ObjectId, ObjectId> equivalencias = replicarDocumentos(envio.getIdDestinatario(),
+                getListaDocumentosPoseidos(envio.getIdRemitente()));
     }
 
-    public List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
+    private Hashtable<ObjectId, ObjectId> replicarDocumentos(String nuevoPropietario, List<Document> listaDocumentos) {
+        Hashtable<ObjectId, ObjectId> equivalencias = new Hashtable<ObjectId, ObjectId>();
+
+        for (Document documento : listaDocumentos) {
+            Document replica = replicarDocumento(documento, nuevoPropietario);
+
+            System.out.println("*****************");
+            System.out.println("ORIGINAL======>" + documento.toJson());
+            System.out.println("REPLICA======>" + replica.toJson());
+
+            if (replica != null)
+                equivalencias.put(documento.getObjectId("_id"), replica.getObjectId("_id"));
+
+            // getCollection().insertOne(replica);
+        }
+
+        return equivalencias;
+    }
+
+    private Document replicarDocumento(Document documento, String nuevoPropietario) {
+        Document duplicado = getClone(documento);
+        duplicado.append("_id", new ObjectId());
+        return duplicado;
+    }
+
+    private Document getClone(Document documento) {
+        return Document.parse(documento.toJson());
+    }
+
+    private List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
                 ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
                 eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
-    public void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
+    private void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
                 ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
                 eq("deleted", null));
         DeleteResult dr = getCollection().deleteMany(filtro);
     }
 
-    public List<Document> getListaDocumentosPoseidos(String idPropietario) {
+    private List<Document> getListaDocumentosPoseidos(String idPropietario) {
         Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioUsuario()),
                 ne("form", formService.getIdFormularioEnvio()), eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
-    public List<Document> getListaDocumentos(Bson filtro) {
+    private List<Document> getListaDocumentos(Bson filtro) {
         List<Document> resultado = new ArrayList<>();
 
         MongoCursor<Document> cursor = getCollection().find(filtro).iterator();
@@ -79,36 +109,6 @@ public class EnvioService {
         return resultado;
     }
 
-    /*
-     * public List<Document> list(){ List<Usuario> list = new ArrayList<>(); Bson
-     * filter = exists("data.password"); MongoCursor<Document> cursor =
-     * getCollection().find(filter).iterator();
-     * 
-     * try { while (cursor.hasNext()) { Document document = cursor.next(); Usuario
-     * usuario = new Usuario(); usuario.setEmail(document.get("data",
-     * Document.class).getString("email"));
-     * System.out.println("===============================");
-     * System.out.println(document.toString());
-     * System.out.println("==============================="); list.add(usuario); } }
-     * finally { cursor.close(); }
-     * 
-     * return list; }
-     * 
-     * publicvoid add(Usuario usuario){ Document document = new Document()
-     * .append("name", customer.getName()) .append("surname", customer.getSurname())
-     * .append("id", customer.getId()); getCollection().insertOne(document); }
-     * 
-     * public void update(Customer customer){ // update one document
-     * 
-     * Bson filter = eq("id", customer.getId()); Bson updateOperation = set("name",
-     * customer.getName()); getCollection().updateOne(filter, updateOperation); }
-     * 
-     * public void delete(Customer customer){ // delete one document
-     * 
-     * Bson filter = eq("id", customer.getId()); getCollection().deleteOne(filter);
-     * }
-     * 
-     */
     private MongoCollection getCollection() {
         return mongoDB.getCollection("submissions");
     }
