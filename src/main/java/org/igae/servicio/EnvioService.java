@@ -30,6 +30,8 @@ import org.igae.modelo.Envio;
 
 @ApplicationScoped
 public class EnvioService {
+    @Inject
+    FormService formService;
 
     @Inject
     MongoDatabase mongoDB;
@@ -42,19 +44,19 @@ public class EnvioService {
 
     public List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
     public void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), eq("deleted", null));
         DeleteResult dr = getCollection().deleteMany(filtro);
-        System.out.println("====================>Borrados: " + dr.getDeletedCount());
     }
 
     public List<Document> getListaDocumentosPoseidos(String idPropietario) {
-        Bson filtro = and(eq("owner", new ObjectId(idPropietario)), eq("deleted", null));
+        Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioUsuario()),
+                eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
