@@ -95,6 +95,12 @@ public class DocumentoService {
         return this.getListaDocumentos(filtro);
     }
 
+    public void eliminarDocumentos() {
+        Bson filtro = and(ne("form", formService.getIdFormularioUsuario()),
+                ne("form", formService.getIdFormularioAdmin()), eq("deleted", null));
+        DeleteResult dr = getCollection().deleteMany(filtro);
+    }
+
     public void eliminarDocumentos(String idAntPropietario, String idNuevoPropietario) {
         Bson filtro = and(eq("previousowner", new ObjectId(idAntPropietario)),
                 eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioUsuario()),
