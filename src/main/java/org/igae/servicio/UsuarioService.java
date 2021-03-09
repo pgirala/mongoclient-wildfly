@@ -1,6 +1,5 @@
 package org.igae.servicio;
 
-
 import com.mongodb.*;
 import com.mongodb.MongoClient;
 import com.mongodb.client.MongoCollection;
@@ -32,7 +31,7 @@ public class UsuarioService {
     @Inject
     MongoDatabase mongoDB;
 
-    public List<Usuario> list(){
+    public List<Usuario> list() {
         List<Usuario> list = new ArrayList<>();
         Bson filter = exists("data.password");
         MongoCursor<Document> cursor = getCollection().find(filter).iterator();
@@ -42,43 +41,32 @@ public class UsuarioService {
                 Document document = cursor.next();
                 Usuario usuario = new Usuario();
                 usuario.setEmail(document.get("data", Document.class).getString("email"));
-                System.out.println("===============================");
-                System.out.println(document.toString());
-                System.out.println("===============================");
                 list.add(usuario);
             }
         } finally {
             cursor.close();
         }
-        
+
         return list;
     }
-/*
-    public void add(Usuario usuario){
-        Document document = new Document()
-                .append("name", customer.getName())
-                .append("surname", customer.getSurname())
-                .append("id", customer.getId());
-        getCollection().insertOne(document);
-    }
 
-    public void update(Customer customer){
-        // update one document
-
-        Bson filter = eq("id", customer.getId());
-        Bson updateOperation = set("name", customer.getName());
-        getCollection().updateOne(filter, updateOperation);
-    }
-
-    public void delete(Customer customer){
-        // delete one document
-
-        Bson filter = eq("id", customer.getId());
-        getCollection().deleteOne(filter);
-    }
-
-*/
-    private MongoCollection getCollection(){
+    /*
+     * public void add(Usuario usuario){ Document document = new Document()
+     * .append("name", customer.getName()) .append("surname", customer.getSurname())
+     * .append("id", customer.getId()); getCollection().insertOne(document); }
+     * 
+     * public void update(Customer customer){ // update one document
+     * 
+     * Bson filter = eq("id", customer.getId()); Bson updateOperation = set("name",
+     * customer.getName()); getCollection().updateOne(filter, updateOperation); }
+     * 
+     * public void delete(Customer customer){ // delete one document
+     * 
+     * Bson filter = eq("id", customer.getId()); getCollection().deleteOne(filter);
+     * }
+     * 
+     */
+    private MongoCollection getCollection() {
         return mongoDB.getCollection("submissions");
     }
 }

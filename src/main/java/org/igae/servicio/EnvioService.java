@@ -52,8 +52,6 @@ public class EnvioService {
 
         for (Document documento : listaDocumentos) {
             equivalencias.put(documento.getObjectId("_id"), new ObjectId());
-            System.out.println("==========>Equivalencia: " + documento.getObjectId("_id") + " "
-                    + equivalencias.get(documento.getObjectId("_id")).toHexString());
         }
 
         return equivalencias;
@@ -66,17 +64,6 @@ public class EnvioService {
 
         for (Document documento : listaDocumentos) {
             Document replica = replicarDocumento(documento, antiguoPropietario, nuevoPropietario, equivalencias);
-
-            System.out.println("*****************");
-            System.out.println("+++++++++++++++++");
-            System.out.println("Antiguo propietario: " + antiguoPropietario);
-            System.out.println("Nuevo propietario: " + nuevoPropietario);
-            System.out.println("ORIGINAL======>" + documento.toJson());
-            System.out.println("\n---------------------------\n");
-            System.out.println("REPLICA======>" + replica.toJson());
-            System.out.println("-----------------");
-            System.out.println("*****************");
-
             resultado.add(replica);
         }
 
@@ -101,13 +88,11 @@ public class EnvioService {
 
     private String actualizarReferencias(String documento, String id, Hashtable<ObjectId, ObjectId> equivalencias) {
         String resultado = documento;
-        System.out.println("====>" + id + " " + documento);
+
         for (ObjectId objectId : equivalencias.keySet()) {
-            System.out.println("====keyset>>>" + objectId.toHexString());
-            if (objectId.toHexString().compareTo(id) == 0) {
-                System.out.println("Salta");
+            if (objectId.toHexString().compareTo(id) == 0)
                 continue;
-            }
+
             resultado = resultado.replaceAll(objectId.toHexString(), equivalencias.get(objectId).toHexString());
         }
 

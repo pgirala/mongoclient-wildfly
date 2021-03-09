@@ -17,26 +17,27 @@ import org.igae.modelo.Envio;
 @Consumes("application/json")
 public class EnvioEndpoint {
 
-    @Inject EnvioService service;
+    @Inject
+    EnvioService service;
 
     @POST
     public List<Envio> add(HashMap mensaje) {
         List<Envio> resultado = new ArrayList<Envio>();
-        HashMap request = (HashMap)mensaje.get("request");
-        HashMap data = (HashMap)request.get("data");
-        HashMap destinatario = (HashMap)data.get("destinatario");
-        HashMap submission = (HashMap)mensaje.get("submission");
+        HashMap request = (HashMap) mensaje.get("request");
+        HashMap data = (HashMap) request.get("data");
+        HashMap destinatario = (HashMap) data.get("destinatario");
+        HashMap submission = (HashMap) mensaje.get("submission");
 
         Envio envio = new Envio();
-        envio.setIdRemitente((String)request.get("owner"));
-        envio.setIdDestinatario((String)destinatario.get("_id"));
-        envio.setComentario((String)data.get("comentario"));
+        envio.setIdRemitente((String) request.get("owner"));
+        envio.setIdDestinatario((String) destinatario.get("_id"));
+        envio.setComentario((String) data.get("comentario"));
 
-        if (submission != null)  
+        if (submission != null)
             try {
-                envio.setMomentoEnvio(new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse((String)submission.get("created")));
+                envio.setMomentoEnvio(
+                        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse((String) submission.get("created")));
             } catch (Exception e) {
-                System.out.println("=============> Error de formateo con fechas");
                 e.printStackTrace();
             }
 
