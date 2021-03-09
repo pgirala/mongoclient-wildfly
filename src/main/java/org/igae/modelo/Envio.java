@@ -3,10 +3,19 @@ package org.igae.modelo;
 import java.util.Date;
 
 public class Envio {
+    private String id;
     private String idRemitente;
     private String idDestinatario;
     private String comentario;
     private Date momentoEnvio;
+
+    public String getId() {
+        return id;
+    }
+
+    public void setId(String id) {
+        this.id = id;
+    }
 
     public String getIdRemitente() {
         return idRemitente;
@@ -42,11 +51,8 @@ public class Envio {
 
     @Override
     public String toString() {
-        return "Envio{" +
-                "idRemitente='" + idRemitente + '\'' +
-                "idDestinatario='" + idDestinatario + '\'' +
-                "comentario='" + comentario + '\'' +
-                "momentoEnvio=" + (momentoEnvio == null ? "null":momentoEnvio.toString()) + '\'' +
-                '}';
+        return "Envio{" + (id == null ? "null" : id) + ", idRemitente='" + idRemitente + '\'' + ", idDestinatario='"
+                + idDestinatario + '\'' + ", comentario='" + comentario + '\'' + ", momentoEnvio="
+                + (momentoEnvio == null ? "null" : momentoEnvio.toString()) + '\'' + '}';
     }
 }

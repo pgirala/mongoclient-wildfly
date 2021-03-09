@@ -35,6 +35,7 @@ public class EnvioEndpoint {
 
         if (submission != null)
             try {
+                envio.setId((String) submission.get("_id"));
                 envio.setMomentoEnvio(
                         new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse((String) submission.get("created")));
             } catch (Exception e) {

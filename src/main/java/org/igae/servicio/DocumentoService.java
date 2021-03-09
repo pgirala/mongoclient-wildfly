@@ -131,7 +131,21 @@ public class DocumentoService {
         getCollection().insertMany(lista);
     }
 
+    public void actualizar(String id, String atributo, Object valor) {
+        BasicDBObject query = new BasicDBObject();
+        query.put("_id", new ObjectId(id));
+
+        BasicDBObject newDocument = new BasicDBObject();
+        newDocument.put(atributo, valor);
+
+        BasicDBObject updateObject = new BasicDBObject();
+        updateObject.put("$set", newDocument);
+
+        getCollection().updateOne(query, updateObject);
+    }
+
     private MongoCollection getCollection() {
         return mongoDB.getCollection("submissions");
     }
+
 }

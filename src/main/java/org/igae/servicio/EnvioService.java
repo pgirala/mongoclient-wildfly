@@ -47,7 +47,11 @@ public class EnvioService {
                 envio.getIdDestinatario(), equivalencias);
         documentoService.eliminarDocumentos(envio.getIdRemitente(), envio.getIdDestinatario());
         documentoService.insertarDocumentos(listaReplicas);
-        // insertar envío para que lo vea el receptor
+        registrar(envio);
+    }
+
+    private void registrar(Envio envio) {
+        documentoService.actualizar(envio.getId(), "data.momentoEnvio", envio.getMomentoEnvio());
     }
 
     private MongoCollection getCollection() {
