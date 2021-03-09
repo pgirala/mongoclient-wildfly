@@ -38,57 +38,100 @@ public class EnvioService {
     MongoDatabase mongoDB;
 
     public void addEnvio(Envio envio) {
+        List<Document> listaDocumentos = getListaDocumentosPoseidos(envio.getIdRemitente());
+        Hashtable<ObjectId, ObjectId> equivalencias = obtenerNuevosIds(listaDocumentos);
+        List<Document> listaReplicas = replicarDocumentos(listaDocumentos, envio.getIdRemitente(),
+                envio.getIdDestinatario(), equivalencias);
         eliminarDocumentosEnviosPrevios(envio.getIdRemitente(), envio.getIdDestinatario());
-        Hashtable<ObjectId, ObjectId> equivalencias = replicarDocumentos(envio.getIdDestinatario(),
-                getListaDocumentosPoseidos(envio.getIdRemitente()));
+        getCollection().insertMany(listaReplicas);
+        // insertar envío para que lo vea el receptor
     }
 
-    private Hashtable<ObjectId, ObjectId> replicarDocumentos(String nuevoPropietario, List<Document> listaDocumentos) {
+    private Hashtable<ObjectId, ObjectId> obtenerNuevosIds(List<Document> listaDocumentos) {
         Hashtable<ObjectId, ObjectId> equivalencias = new Hashtable<ObjectId, ObjectId>();
 
         for (Document documento : listaDocumentos) {
-            Document replica = replicarDocumento(documento, nuevoPropietario);
-
-            System.out.println("*****************");
-            System.out.println("ORIGINAL======>" + documento.toJson());
-            System.out.println("REPLICA======>" + replica.toJson());
-
-            if (replica != null)
-                equivalencias.put(documento.getObjectId("_id"), replica.getObjectId("_id"));
-
-            // getCollection().insertOne(replica);
+            equivalencias.put(documento.getObjectId("_id"), new ObjectId());
+            System.out.println("==========>Equivalencia: " + documento.getObjectId("_id") + " "
+                    + equivalencias.get(documento.getObjectId("_id")).toHexString());
         }
 
         return equivalencias;
     }
 
-    private Document replicarDocumento(Document documento, String nuevoPropietario) {
-        Document duplicado = getClone(documento);
-        duplicado.append("_id", new ObjectId());
+    private List<Document> replicarDocumentos(List<Document> listaDocumentos, String antiguoPropietario,
+            String nuevoPropietario, Hashtable<ObjectId, ObjectId> equivalencias) {
+
+        List<Document> resultado = new ArrayList<Document>();
+
+        for (Document documento : listaDocumentos) {
+            Document replica = replicarDocumento(documento, antiguoPropietario, nuevoPropietario, equivalencias);
+
+            System.out.println("*****************");
+            System.out.println("+++++++++++++++++");
+            System.out.println("Antiguo propietario: " + antiguoPropietario);
+            System.out.println("Nuevo propietario: " + nuevoPropietario);
+            System.out.println("ORIGINAL======>" + documento.toJson());
+            System.out.println("\n---------------------------\n");
+            System.out.println("REPLICA======>" + replica.toJson());
+            System.out.println("-----------------");
+            System.out.println("*****************");
+
+            resultado.add(replica);
+        }
+
+        return resultado;
+    }
+
+    private Document replicarDocumento(Document documento, String antiguoPropietario, String nuevoPropietario,
+            Hashtable<ObjectId, ObjectId> equivalencias) {
+        Document duplicado = getClone(documento, equivalencias);
+        duplicado.replace("_id", documento.getObjectId("_id"), equivalencias.get(documento.getObjectId("_id")));
+        duplicado.replace("owner", new ObjectId(nuevoPropietario));
+        duplicado.append("sender", new ObjectId(antiguoPropietario));
         return duplicado;
     }
 
-    private Document getClone(Document documento) {
-        return Document.parse(documento.toJson());
+    private Document getClone(Document documento, Hashtable<ObjectId, ObjectId> equivalencias) {
+        String documentoConReferenciasObsoletas = documento.toJson();
+        String documentoConReferenciasActualizadas = actualizarReferencias(documentoConReferenciasObsoletas,
+                documento.getObjectId("_id").toHexString(), equivalencias);
+        return Document.parse(documentoConReferenciasActualizadas);
+    }
+
+    private String actualizarReferencias(String documento, String id, Hashtable<ObjectId, ObjectId> equivalencias) {
+        String resultado = documento;
+        System.out.println("====>" + id + " " + documento);
+        for (ObjectId objectId : equivalencias.keySet()) {
+            System.out.println("====keyset>>>" + objectId.toHexString());
+            if (objectId.toHexString().compareTo(id) == 0) {
+                System.out.println("Salta");
+                continue;
+            }
+            resultado = resultado.replaceAll(objectId.toHexString(), equivalencias.get(objectId).toHexString());
+        }
+
+        return resultado;
     }
 
     private List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
-                eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioAdmin()),
+                ne("form", formService.getIdFormularioEnvio()), eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
     private void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
-                eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioAdmin()),
+                ne("form", formService.getIdFormularioEnvio()), eq("deleted", null));
         DeleteResult dr = getCollection().deleteMany(filtro);
     }
 
     private List<Document> getListaDocumentosPoseidos(String idPropietario) {
         Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioUsuario()),
-                ne("form", formService.getIdFormularioEnvio()), eq("deleted", null));
+                ne("form", formService.getIdFormularioAdmin()), ne("form", formService.getIdFormularioEnvio()),
+                eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 

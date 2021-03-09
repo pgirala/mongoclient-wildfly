@@ -45,6 +45,14 @@ public class FormService {
             return (ObjectId) formularioUsuario.get("_id");
     }
 
+    public ObjectId getIdFormularioAdmin() {
+        Document formularioUsuario = getFormulario("resource", "admin");
+        if (formularioUsuario == null)
+            return null;
+        else
+            return (ObjectId) formularioUsuario.get("_id");
+    }
+
     public ObjectId getIdFormularioEnvio() {
         Document formularioUsuario = getFormulario("resource", "envio");
         if (formularioUsuario == null)
