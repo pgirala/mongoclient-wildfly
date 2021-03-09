@@ -44,19 +44,21 @@ public class EnvioService {
 
     public List<Document> getListaDocumentosRemitidos(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                ne("form", formService.getIdFormularioUsuario()), eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
+                eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
     public void eliminarDocumentosEnviosPrevios(String idRemitente, String idDestinatario) {
         Bson filtro = and(eq("sender", new ObjectId(idRemitente)), eq("owner", new ObjectId(idDestinatario)),
-                ne("form", formService.getIdFormularioUsuario()), eq("deleted", null));
+                ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioEnvio()),
+                eq("deleted", null));
         DeleteResult dr = getCollection().deleteMany(filtro);
     }
 
     public List<Document> getListaDocumentosPoseidos(String idPropietario) {
         Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioUsuario()),
-                eq("deleted", null));
+                ne("form", formService.getIdFormularioEnvio()), eq("deleted", null));
         return this.getListaDocumentos(filtro);
     }
 
