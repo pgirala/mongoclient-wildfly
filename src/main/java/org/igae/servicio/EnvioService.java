@@ -52,14 +52,16 @@ public class EnvioService {
 
     private void registrar(Envio envio) {
         documentoService.actualizar(envio.getId(), "data.momentoEnvio", envio.getMomentoEnvio());
-        documentoService.actualizar(envio.getId(), "data.remitente", new ObjectId(envio.getIdRemitente()));
+        Document remitente = documentoService.getDocumento(envio.getIdRemitente());
+        documentoService.actualizar(envio.getId(), "data.remitente", remitente);
         List<Document> listaDocumentos = new ArrayList<Document>();
         Document documentoEnvio = documentoService.getDocumento(envio.getId());
         if (documentoEnvio != null) {
             listaDocumentos.add(documentoEnvio);
             Hashtable<ObjectId, ObjectId> equivalencias = documentoService.obtenerNuevosIds(listaDocumentos);
-            documentoService.replicarDocumentos(listaDocumentos, envio.getIdRemitente(), envio.getIdDestinatario(),
-                    equivalencias);
+            List<Document> listaReplicas = documentoService.replicarDocumentos(listaDocumentos, envio.getIdRemitente(),
+                    envio.getIdDestinatario(), equivalencias);
+            documentoService.insertarDocumentos(listaReplicas);
         }
     }
 
