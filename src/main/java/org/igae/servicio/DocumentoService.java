@@ -116,6 +116,15 @@ public class DocumentoService {
         return this.getListaDocumentos(filtro);
     }
 
+    public Document getDocumento(String id) {
+        try {
+            Bson filtro = eq("_id", new ObjectId(id));
+            return (Document) getCollection().find(filtro).first();
+        } catch (Exception e) {
+            return null;
+        }
+    }
+
     public List<Document> getListaDocumentos(Bson filtro) {
         List<Document> resultado = new ArrayList<>();
 
