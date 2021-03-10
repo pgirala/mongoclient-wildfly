@@ -89,31 +89,34 @@ public class DocumentoService {
 
     public List<Document> getListaDocumentos(String idAntPropietario, String idNuevoPropietario) {
         Bson filtro = and(eq("previousowner", new ObjectId(idAntPropietario)),
-                eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioUsuario()),
-                ne("form", formService.getIdFormularioAdmin()), ne("form", formService.getIdFormularioEnvio()),
-                eq("deleted", null));
+                eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioEnvio()),
+                getFiltroSalvaguarda());
         return this.getListaDocumentos(filtro);
     }
 
     public void eliminarDocumentos() {
-        Bson filtro = and(ne("form", formService.getIdFormularioUsuario()),
-                ne("form", formService.getIdFormularioAdmin()), eq("deleted", null));
+        Bson filtro = getFiltroSalvaguarda();
         DeleteResult dr = getCollection().deleteMany(filtro);
     }
 
     public void eliminarDocumentos(String idAntPropietario, String idNuevoPropietario) {
         Bson filtro = and(eq("previousowner", new ObjectId(idAntPropietario)),
-                eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioUsuario()),
-                ne("form", formService.getIdFormularioAdmin()), ne("form", formService.getIdFormularioEnvio()),
-                eq("deleted", null));
+                eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioEnvio()),
+                getFiltroSalvaguarda());
         DeleteResult dr = getCollection().deleteMany(filtro);
     }
 
     public List<Document> getListaDocumentosPoseidos(String idPropietario) {
-        Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioUsuario()),
-                ne("form", formService.getIdFormularioAdmin()), ne("form", formService.getIdFormularioEnvio()),
-                eq("deleted", null));
+        Bson filtro = and(eq("owner", new ObjectId(idPropietario)), ne("form", formService.getIdFormularioEnvio()),
+                getFiltroSalvaguarda());
         return this.getListaDocumentos(filtro);
+    }
+
+    private Bson getFiltroSalvaguarda() {
+        // evita que se borren los datos de los usuarios y de los administradores
+        // además solo considera los borrados
+        return and(ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioAdmin()),
+                eq("deleted", null));
     }
 
     public Document getDocumento(String id) {
