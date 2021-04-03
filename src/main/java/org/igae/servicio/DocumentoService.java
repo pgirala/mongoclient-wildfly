@@ -63,7 +63,7 @@ public class DocumentoService {
         Document duplicado = getClone(documento, equivalencias);
         duplicado.replace("_id", documento.getObjectId("_id"), equivalencias.get(documento.getObjectId("_id")));
         duplicado.replace("owner", new ObjectId(nuevoPropietario));
-        duplicado.append("previousowner", new ObjectId(antiguoPropietario));
+        duplicado.append("previousOwner", new ObjectId(antiguoPropietario));
         return duplicado;
     }
 
@@ -88,7 +88,7 @@ public class DocumentoService {
     }
 
     public List<Document> getListaDocumentos(String idAntPropietario, String idNuevoPropietario) {
-        Bson filtro = and(eq("previousowner", new ObjectId(idAntPropietario)),
+        Bson filtro = and(eq("previousOwner", new ObjectId(idAntPropietario)),
                 eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioEnvio()),
                 getFiltroSalvaguarda());
         return this.getListaDocumentos(filtro);
@@ -100,7 +100,7 @@ public class DocumentoService {
     }
 
     public void eliminarDocumentos(String idAntPropietario, String idNuevoPropietario) {
-        Bson filtro = and(eq("previousowner", new ObjectId(idAntPropietario)),
+        Bson filtro = and(eq("previousOwner", new ObjectId(idAntPropietario)),
                 eq("owner", new ObjectId(idNuevoPropietario)), ne("form", formService.getIdFormularioEnvio()),
                 getFiltroSalvaguarda());
         DeleteResult dr = getCollection().deleteMany(filtro);
