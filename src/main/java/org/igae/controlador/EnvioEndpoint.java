@@ -21,30 +21,12 @@ public class EnvioEndpoint {
     EnvioService service;
 
     @POST
-    public List<Envio> add(HashMap mensaje) {
-        List<Envio> resultado = new ArrayList<Envio>();
-        HashMap request = (HashMap) mensaje.get("request");
-        HashMap data = (HashMap) request.get("data");
-        HashMap destinatario = (HashMap) data.get("destinatario");
-        HashMap submission = (HashMap) mensaje.get("submission");
-
-        Envio envio = new Envio();
-        envio.setIdRemitente((String) request.get("owner"));
-        envio.setIdDestinatario((String) destinatario.get("_id"));
-        envio.setComentario((String) data.get("comentario"));
-
-        if (submission != null)
-            try {
-                envio.setId((String) submission.get("_id"));
-                envio.setMomentoEnvio(
-                        new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss").parse((String) submission.get("created")));
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-        service.addEnvio(envio);
-
-        resultado.add(envio);
+    public HashMap add(HashMap mensaje) {
+        HashMap resultado = new HashMap();
+        String idEnvio = (String) mensaje.get("submissionId");
+        service.perfeccionarEnvio(idEnvio);
+        resultado.put("success", true);
+        resultado.put("message", "Envío realizado correctamente.");
         return resultado;
     }
 }

@@ -52,7 +52,7 @@ public class Envio {
     @Override
     public String toString() {
         return "Envio{" + (id == null ? "null" : id) + ", idRemitente='" + idRemitente + '\'' + ", idDestinatario='"
-                + idDestinatario + '\'' + ", comentario='" + comentario + '\'' + ", momentoEnvio="
-                + (momentoEnvio == null ? "null" : momentoEnvio.toString()) + '\'' + '}';
+                + idDestinatario + '\'' + ", comentario='" + (comentario == null ? "null" : comentario) + '\''
+                + ", momentoEnvio=" + (momentoEnvio == null ? "null" : momentoEnvio.toString()) + '\'' + '}';
     }
 }
