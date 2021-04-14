@@ -30,6 +30,8 @@ import org.bson.Document;
 import java.util.Date;
 
 import org.igae.modelo.Envio;
+import org.igae.modelo.Usuario;
+import org.igae.servicio.UsuarioService;
 
 @ApplicationScoped
 public class EnvioService {
@@ -38,6 +40,9 @@ public class EnvioService {
 
     @Inject
     DocumentoService documentoService;
+
+    @Inject
+    UsuarioService usuarioService;
 
     @Inject
     MongoDatabase mongoDB;
@@ -76,7 +81,23 @@ public class EnvioService {
         documentoService.eliminarDocumentos(envio.getIdRemitente(), envio.getIdDestinatario());
         documentoService.insertarDocumentos(listaReplicas);
 
+        Usuario remitente = usuarioService.findOne(envio.getIdRemitente());
+        Usuario destinatario = usuarioService.findOne(envio.getIdDestinatario());
+
+        // se incluye en el resumen el remitente
+        documentoService.actualizar(envio.getId(), "data.resumen",
+                "De " + ((remitente == null) ? " - " : remitente.getEmail()) + " a "
+                        + ((destinatario == null) ? " - " : destinatario.getEmail()));
         documentoService.actualizar(envio.getId(), "data.momentoEnvio", envio.getMomentoEnvio());
+        // de momento se recibe automáticamente
+        documentoService.actualizar(envio.getId(), "data.momentoRecepcion", envio.getMomentoEnvio());
+
+        // se replica el envío pero poniendo como propietario al receptor para que lo
+        // vea en su lista de envíos
+        Document documentoEnvio = documentoService.getDocumento(idEnvio);
+        Document envioDuplicado = documentoService.replicarDocumento(documentoEnvio, envio.getIdRemitente(),
+                envio.getIdDestinatario(), new Hashtable<ObjectId, ObjectId>());
+        documentoService.insertarDocumento(envioDuplicado);
     }
 
     private MongoCollection getCollection() {

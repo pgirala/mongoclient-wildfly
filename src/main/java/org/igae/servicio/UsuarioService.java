@@ -40,6 +40,8 @@ public class UsuarioService {
             while (cursor.hasNext()) {
                 Document document = cursor.next();
                 Usuario usuario = new Usuario();
+
+                usuario.setId(document.getObjectId("_id").toString());
                 usuario.setEmail(document.get("data", Document.class).getString("email"));
                 list.add(usuario);
             }
@@ -48,6 +50,16 @@ public class UsuarioService {
         }
 
         return list;
+    }
+
+    public Usuario findOne(String idUsuario) {
+        Usuario resultado = null;
+
+        for (Usuario usuario : this.list())
+            if (usuario.getId().compareTo(idUsuario) == 0)
+                resultado = usuario;
+
+        return resultado;
     }
 
     /*

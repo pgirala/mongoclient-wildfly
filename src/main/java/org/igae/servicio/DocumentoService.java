@@ -58,7 +58,7 @@ public class DocumentoService {
         return resultado;
     }
 
-    private Document replicarDocumento(Document documento, String antiguoPropietario, String nuevoPropietario,
+    public Document replicarDocumento(Document documento, String antiguoPropietario, String nuevoPropietario,
             Hashtable<ObjectId, ObjectId> equivalencias) {
         Document duplicado = getClone(documento, equivalencias);
         duplicado.replace("_id", documento.getObjectId("_id"), equivalencias.get(documento.getObjectId("_id")));
@@ -147,6 +147,10 @@ public class DocumentoService {
 
     public void insertarDocumentos(List<Document> lista) {
         getCollection().insertMany(lista);
+    }
+
+    public void insertarDocumento(Document documento) {
+        getCollection().insertOne(documento);
     }
 
     public void actualizar(String id, String atributo, Object valor) {
