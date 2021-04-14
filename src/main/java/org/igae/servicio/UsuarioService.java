@@ -42,6 +42,7 @@ public class UsuarioService {
                 Usuario usuario = new Usuario();
 
                 usuario.setId(document.getObjectId("_id").toString());
+                usuario.setName(document.get("data", Document.class).getString("name"));
                 usuario.setEmail(document.get("data", Document.class).getString("email"));
                 list.add(usuario);
             }

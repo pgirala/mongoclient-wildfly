@@ -2,7 +2,7 @@ package org.igae.modelo;
 
 public class Usuario {
     private String id;
-
+    private String name;
     private String email;
 
     public void setId(String id) {
@@ -11,6 +11,14 @@ public class Usuario {
 
     public String getId() {
         return id;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getEmail() {
@@ -23,6 +31,6 @@ public class Usuario {
 
     @Override
     public String toString() {
-        return "Usuario{" + "email='" + email + '\'' + '}';
+        return "Usuario{" + "name='" + name + '\'' + ", email='" + email + '\'' + '}';
     }
 }

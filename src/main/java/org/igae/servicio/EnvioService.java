@@ -86,8 +86,8 @@ public class EnvioService {
 
         // se incluye en el resumen el remitente
         documentoService.actualizar(envio.getId(), "data.resumen",
-                "De " + ((remitente == null) ? " - " : remitente.getEmail()) + " a "
-                        + ((destinatario == null) ? " - " : destinatario.getEmail()));
+                "De " + ((remitente == null || remitente.getName() == null) ? " - " : remitente.getName()) + " a "
+                        + ((destinatario == null || destinatario.getName() == null) ? " - " : destinatario.getName()));
         documentoService.actualizar(envio.getId(), "data.momentoEnvio", envio.getMomentoEnvio());
         // de momento se recibe automáticamente
         documentoService.actualizar(envio.getId(), "data.momentoRecepcion", envio.getMomentoEnvio());
