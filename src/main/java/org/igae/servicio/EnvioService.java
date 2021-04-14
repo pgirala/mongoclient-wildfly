@@ -94,9 +94,12 @@ public class EnvioService {
 
         // se replica el envío pero poniendo como propietario al receptor para que lo
         // vea en su lista de envíos
+
         Document documentoEnvio = documentoService.getDocumento(idEnvio);
+        Hashtable<ObjectId, ObjectId> correspondenciaId = new Hashtable<ObjectId, ObjectId>();
+        correspondenciaId.put(new ObjectId(idEnvio), new ObjectId());
         Document envioDuplicado = documentoService.replicarDocumento(documentoEnvio, envio.getIdRemitente(),
-                envio.getIdDestinatario(), new Hashtable<ObjectId, ObjectId>());
+                envio.getIdDestinatario(), correspondenciaId);
         documentoService.insertarDocumento(envioDuplicado);
     }
 
