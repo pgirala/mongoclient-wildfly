@@ -8,6 +8,7 @@ public class Envio {
     private String idDestinatario;
     private String comentario;
     private Date momentoEnvio;
+    private String dominio;
 
     public String getId() {
         return id;
@@ -49,10 +50,19 @@ public class Envio {
         this.momentoEnvio = momentoEnvio;
     }
 
+    public String getDominio() {
+        return dominio;
+    }
+
+    public void setDominio(String dominio) {
+        this.dominio = dominio;
+    }
+
     @Override
     public String toString() {
         return "Envio{" + (id == null ? "null" : id) + ", idRemitente='" + idRemitente + '\'' + ", idDestinatario='"
                 + idDestinatario + '\'' + ", comentario='" + (comentario == null ? "null" : comentario) + '\''
-                + ", momentoEnvio=" + (momentoEnvio == null ? "null" : momentoEnvio.toString()) + '\'' + '}';
+                + ", momentoEnvio=" + (momentoEnvio == null ? "null" : momentoEnvio.toString()) + '\'' + ", dominio="
+                + dominio + '}';
     }
 }

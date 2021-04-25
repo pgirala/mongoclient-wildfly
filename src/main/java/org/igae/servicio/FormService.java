@@ -61,6 +61,23 @@ public class FormService {
             return (ObjectId) formularioUsuario.get("_id");
     }
 
+    public List<ObjectId> getIdFormularios(String dominio) {
+        List<ObjectId> resultado = new ArrayList<>();
+
+        MongoCursor<Document> cursor = getCollection().find(Filters.regex("path", dominio)).iterator();
+
+        try {
+            while (cursor.hasNext()) {
+                Document document = cursor.next();
+                resultado.add(document.getObjectId("_id"));
+            }
+        } finally {
+            cursor.close();
+        }
+
+        return resultado;
+    }
+
     private MongoCollection getCollection() {
         return mongoDB.getCollection("forms");
     }

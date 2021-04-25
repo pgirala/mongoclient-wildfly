@@ -59,6 +59,7 @@ public class EnvioService {
         envio.setIdDestinatario(destinatario.getObjectId("_id").toString());
         envio.setComentario(datos.getString("comentario"));
         envio.setMomentoEnvio(documento.getDate("created"));
+        envio.setDominio(datos.getString("dominio"));
         return envio;
     }
 
@@ -74,11 +75,12 @@ public class EnvioService {
     public void perfeccionarEnvio(String idEnvio) {
         Envio envio = this.obtenerEnvio(idEnvio);
 
-        List<Document> listaDocumentos = documentoService.getListaDocumentosPoseidos(envio.getIdRemitente());
+        List<Document> listaDocumentos = documentoService.getListaDocumentosPoseidos(envio.getIdRemitente(),
+                envio.getDominio());
         Hashtable<ObjectId, ObjectId> equivalencias = documentoService.obtenerNuevosIds(listaDocumentos);
         List<Document> listaReplicas = documentoService.replicarDocumentos(listaDocumentos, envio.getIdRemitente(),
                 envio.getIdDestinatario(), equivalencias);
-        documentoService.eliminarDocumentos(envio.getIdRemitente(), envio.getIdDestinatario());
+        documentoService.eliminarDocumentos(envio.getIdRemitente(), envio.getIdDestinatario(), envio.getDominio());
         documentoService.insertarDocumentos(listaReplicas);
 
         Usuario remitente = usuarioService.findOne(envio.getIdRemitente());
