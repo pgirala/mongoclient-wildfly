@@ -1,0 +1,8 @@
+{
+  "realm": "Clifford",
+  "bearer-only": true,
+  "auth-server-url": "http://keycloak:8080/auth/",
+  "ssl-required": "external",
+  "resource": "clifford-back-end",
+  "confidential-port": 0
+}

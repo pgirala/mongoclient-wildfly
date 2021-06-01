@@ -44,6 +44,52 @@ Se invoca al método con:
 
 ```
 
-Nótese que no está protegido (hay que incorporar la protección de Keycloak).
+Para incorporar la protección basada en un bearer token generado por Keycloak:
+- Ejemplo base tomado de https://wjw465150.gitbooks.io/keycloak-documentation/content/securing_apps/topics/oidc/java/jboss-adapter.html
+
+- Descargar el adaptador de Keycloak para WildFly: https://www.keycloak.org/downloads
+- Subirlo al servidor Wildfly: docker cp keycloak-oidc-wildfly-adapter-13.0.1.zip wildfly:/opt/jboss/wildfly
+- Desempaquetarlo: unzip keycloak-oidc-wildfly-adapter-13.0.1.zip
+- Eliminar el fichero zip.
+- Configurar el adaptador cambiando al subdirectorio bin y ejecutando: ./jboss-cli.sh --file=adapter-elytron-install-offline.cli
+- Reiniciar el servidor y desplegar Clifford-back cuando el servidor esté totalmente levantado (tarda un rato).
+- Hay que cambiar el issuer del token que genera Keycloak. Para ello basta con poner en la solapa general de Clifford, la Frontend URL: http://keycloak:8080/auth/
+Para descubrir este problema fue fundamental hacer un dump de todas las peticiones http a wildfly basándose en http://alloutfornoloss.com/wildfly-dump-http-request-and-response/ con lo que el standalone.xml del servidor Wildfly debe quedar así en este apartado:
+        <subsystem xmlns="urn:jboss:domain:undertow:10.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other">
+            <buffer-cache name="default"/>
+            <server name="default-server">
+                <http-listener name="default" socket-binding="http" redirect-socket="https" enable-http2="true"/>
+                <https-listener name="https" socket-binding="https" security-realm="ApplicationRealm" enable-http2="true"/>
+                <host name="default-host" alias="localhost">
+                    <location name="/" handler="welcome-content"/>
+                    <http-invoker security-realm="ApplicationRealm"/>
+					<filter-ref name="request-dumper"/>
+                </host>
+            </server>
+            <servlet-container name="default">
+                <jsp-config/>
+                <websockets/>
+            </servlet-container>
+            <handlers>
+                <file name="welcome-content" path="${jboss.home.dir}/welcome-content"/>
+            </handlers>
+            <application-security-domains>
+                <application-security-domain name="other" http-authentication-factory="keycloak-http-authentication"/>
+            </application-security-domains>
+			<filters>
+				<filter name="request-dumper" class-name="io.undertow.server.handlers.RequestDumpingHandler" module="io.undertow.core"/>
+			</filters>
+        </subsystem>
+- Crear, como administrador en Keycloak, en el dominio Clifford, el cliente clifford-back-end con el protocolo openid-connect.
+- Tras crearlo, cambiar el tipo de acceso por "Bearer only".
+- Seleccionar "Instalación", seleccionar el formato JSON, añadir la línea   "enable-cors": true y descargar el fichero colocándolo en webapp\WEB-INF
+- Para que los dos grupos de contenedores trabajen en la misma red hay que hacer lo siguiente:
+- 1. Crear una red: docker network create clifford-net
+- 2. Asegurarse de que en los docker-compose.yml se incluya una referencia a la red creada:
+networks:
+  default:
+    external:
+      name: clifford-net
+
 
 ```
