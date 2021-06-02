@@ -53,7 +53,7 @@ Para incorporar la protección basada en un bearer token generado por Keycloak:
 - Eliminar el fichero zip.
 - Configurar el adaptador cambiando al subdirectorio bin y ejecutando: ./jboss-cli.sh --file=adapter-elytron-install-offline.cli
 - Reiniciar el servidor y desplegar Clifford-back cuando el servidor esté totalmente levantado (tarda un rato).
-- Hay que cambiar el issuer del token que genera Keycloak. Para ello basta con poner en la solapa general de Clifford, la Frontend URL: http://keycloak:8080/auth/
+- Hay que cambiar el issuer del token que genera Keycloak. Para ello basta con poner en la solapa general de Clifford, la Frontend URL: http://keycloak:8080/auth/ pero, además, hay que incluir en c:\windows\system32\drivers\etc\hosts la línea 127.0.0.1 keycloak
 Para descubrir este problema fue fundamental hacer un dump de todas las peticiones http a wildfly basándose en http://alloutfornoloss.com/wildfly-dump-http-request-and-response/ con lo que el standalone.xml del servidor Wildfly debe quedar así en este apartado:
         <subsystem xmlns="urn:jboss:domain:undertow:10.0" default-server="default-server" default-virtual-host="default-host" default-servlet-container="default" default-security-domain="other">
             <buffer-cache name="default"/>
