@@ -8,6 +8,13 @@ Nace para suplir la falta de triggers en MongoDB (para "perfeccionar" los envío
 
 El objetivo es evolucionarlo para intermediar entre el front y los tres servidores implicados (el de formularios: form.io, el de flujos de trabajo, jBPM/Kie server y el de base de datos de documentos MongoDB). Así se podrán aplicar políticas de autorización basadas en Keycloak y se ofrecerá un API REST al front (incluyendo las consultas a elementos de las listas desplegables que aparecen en los formularios form.io).
 
+## Si la aplicación se ejecuta en local con Dockers hay que configurar el hosts para hacer homogéneos los nombres de los servidores dentro de Docker y fuera. Incluir estas líneas (se evita el uso indiscrimando del localhost)
+
+127.0.0.1 clifford
+127.0.0.1 formio
+127.0.0.1 keycloak
+127.0.0.1 clifford-back
+
 ## Obtener el código
 
 ```
