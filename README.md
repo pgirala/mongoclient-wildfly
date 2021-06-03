@@ -31,11 +31,14 @@ Para poder acceder al servidor de administración de Wildfly hay que hacer lo si
 
 1. Habilitar puertos entrantes:
 - Acceder en wildfly\standalone\configuration al fichero standalone.xml
-- Editarlo al final, en la parte de interfaces, sustituyendo en todos 127.0.0.1 por 0.0.0.0 (vi, i para insertar, ESC para volver al modo normal, :wq para grabar y salir, :q para salir).
+- Obtenerlo en local con: docker cp wildfly:/opt/jboss/wildfly/standalone/configuration/standalone.xml .
+- Editarlo al final, en la parte de interfaces, sustituyendo en todos 127.0.0.1 por 0.0.0.0 (si se hace directamente con vi en servidor, i para insertar, ESC para volver al modo normal, :wq para grabar y salir, :q para salir).
+- Eliminar el fichero standalone.xml existente en el servidor
+- Subir el fichero local al servidor: docker cp .\standalone.xml wildfly:/opt/jboss/wildfly/standalone/configuration
 
 2. Crear usuario administrador:
 - Situarse en wildfly\bin
-- Ejecutar ./add-user --silent admin Admin#1967 ManagementRealm
+- Ejecutar ./add-user.sh --silent admin Admin#1967 ManagementRealm
 - Otra opción es ejecutar desde Windows:
     docker exec <CONTAINER> /opt/jboss/keycloak/bin/add-user-keycloak.sh -u admin -p Admin#1967
 
