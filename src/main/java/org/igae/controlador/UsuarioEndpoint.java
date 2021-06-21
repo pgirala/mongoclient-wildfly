@@ -40,7 +40,6 @@ public class UsuarioEndpoint {
     @Path("/token/usuario")
     @Produces("application/json")
     public String getTokenFormio() {
-        String resultado = "ERROR";
         String tokenKC = httpServletRequest.getHeader("authorization");
         if (tokenKC == null) {
             try {
@@ -50,22 +49,13 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-
-        tokenKC = tokenKC.replace("Bearer ", "");
-        String[] chunks = tokenKC.split("\\.");
-        Base64.Decoder decoder = Base64.getDecoder();
-        String payload = new String(decoder.decode(chunks[1]));
-        BasicDBObject basicDBObject = (BasicDBObject) BasicDBObject.parse(payload);
-        if (basicDBObject != null)
-            resultado = basicDBObject.getString("preferred_username");
-        return resultado;
+        return this.getCodigoUsuario(tokenKC);
     }
 
     @GET
     @Path("/token/organizacion")
     @Produces("application/json")
     public String getTokenFormioOrganizacion() {
-        String resultado = "ERROR";
         String tokenKC = httpServletRequest.getHeader("authorization");
         if (tokenKC == null) {
             try {
@@ -75,18 +65,7 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-
-        tokenKC = tokenKC.replace("Bearer ", "");
-        String[] chunks = tokenKC.split("\\.");
-        Base64.Decoder decoder = Base64.getDecoder();
-        String payload = new String(decoder.decode(chunks[1]));
-        BasicDBObject basicDBObject = (BasicDBObject) BasicDBObject.parse(payload);
-        String user = basicDBObject.getString("user");
-        if (user != null) {
-            basicDBObject = (BasicDBObject) BasicDBObject.parse(user);
-            resultado = basicDBObject.getString("organization");
-        }
-        return resultado;
+        return this.getCodigoOrganizacion(tokenKC);
     }
 
     /*
@@ -99,4 +78,36 @@ public class UsuarioEndpoint {
      * @DELETE public List<Usuario> delete(Usuario usuario) {
      * service.delete(usuario); return list(); }
      */
+    private String getCodigoUsuario(String token) {
+        String resultado = "Anónimo";
+        String tokenKC = token.replace("Bearer ", "");
+        String[] chunks = tokenKC.split("\\.");
+        Base64.Decoder decoder = Base64.getDecoder();
+        String payload = new String(decoder.decode(chunks[1]));
+        BasicDBObject basicDBObject = (BasicDBObject) BasicDBObject.parse(payload);
+        if (basicDBObject != null)
+            resultado = basicDBObject.getString("preferred_username");
+        return resultado;
+    }
+
+    private String getCodigoOrganizacion(String token) {
+        String resultado = "Anónimo";
+        String tokenKC = token.replace("Bearer ", "");
+        String[] chunks = tokenKC.split("\\.");
+        Base64.Decoder decoder = Base64.getDecoder();
+        String payload = new String(decoder.decode(chunks[1]));
+        BasicDBObject basicDBObject = (BasicDBObject) BasicDBObject.parse(payload);
+        if (basicDBObject != null) {
+            String user = basicDBObject.getString("user");
+            if (user != null) {
+                basicDBObject = (BasicDBObject) BasicDBObject.parse(user);
+                resultado = basicDBObject.getString("organization");
+            }
+        }
+        return resultado;
+    }
+
+    private String getPassword() {
+        return "CHANGEME"; // TODO Hay que obtener la contraseña de un properties
+    }
 }
