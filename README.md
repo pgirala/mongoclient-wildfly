@@ -92,6 +92,7 @@ Para descubrir este problema fue fundamental hacer un dump de todas las peticion
         </subsystem>
 - Crear, como administrador en Keycloak, en el dominio Clifford, el cliente clifford-back-end con el protocolo openid-connect.
 - Tras crearlo, cambiar el tipo de acceso por "Bearer only".
+- Crear el rol de dominio default-roles-clifford, compuesto, con la descripción ${role_default-roles}
 - Seleccionar "Instalación", seleccionar el formato JSON, añadir la línea   "enable-cors": true y descargar el fichero colocándolo en webapp\WEB-INF
 - Para que los dos grupos de contenedores trabajen en la misma red hay que hacer lo siguiente:
 - 1. Crear una red: docker network create clifford-net
