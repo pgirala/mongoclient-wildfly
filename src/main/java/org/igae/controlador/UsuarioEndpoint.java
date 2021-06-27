@@ -6,14 +6,22 @@ import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.jsp.tagext.BodyContent;
+
 import java.util.Base64;
+import java.util.HashMap;
+
 import javax.ws.rs.*;
 import javax.ws.rs.core.*;
+import javax.ws.rs.client.*;
+import javax.ws.rs.client.Entity;
 import java.util.List;
 import com.mongodb.BasicDBObject;
 
 import org.igae.servicio.UsuarioService;
+import org.igae.modelo.Acreditacion;
 import org.igae.modelo.Usuario;
+import org.igae.modelo.Payload;
 
 @Path("/usuarios")
 // @Produces("application/json")
@@ -39,7 +47,7 @@ public class UsuarioEndpoint {
     @GET
     @Path("/token/usuario")
     @Produces("application/json")
-    public String getTokenFormio() {
+    public String getTokenFormioUsuario() {
         String tokenKC = httpServletRequest.getHeader("authorization");
         if (tokenKC == null) {
             try {
@@ -49,7 +57,7 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-        return this.getCodigoUsuario(tokenKC);
+        return "{\"token\":\"" + this.getToken(this.getCodigoUsuario(tokenKC)) + "\"}";
     }
 
     @GET
@@ -65,7 +73,7 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-        return this.getCodigoOrganizacion(tokenKC);
+        return "{\"token\":\"" + this.getToken(this.getCodigoOrganizacion(tokenKC)) + "\"}";
     }
 
     /*
@@ -107,7 +115,22 @@ public class UsuarioEndpoint {
         return resultado;
     }
 
-    private String getPassword() {
-        return "CHANGEME"; // TODO Hay que obtener la contraseña de un properties
+    private String getToken(String codigoUsuario) {
+        try {
+            Client cliente = ClientBuilder.newClient();
+            WebTarget recurso = cliente.target("http://formio:3001/user/login"); // TODO a un fichero de properties
+            Payload payload = new Payload();
+            payload.setData(this.getAcreditacion(codigoUsuario));
+            Response respuesta = recurso.request().post(Entity.json(payload.toString()));
+            return respuesta.getHeaderString("x-jwt-token");
+        } catch (Exception e) {
+            return e.getMessage();
+        }
+    }
+
+    private Acreditacion getAcreditacion(String codigoUsuario) {
+        Acreditacion acreditacion = new Acreditacion();
+        acreditacion.setEmail(codigoUsuario + "@gob.es"); // TODO a un fichero de properties
+        return acreditacion;
     }
 }

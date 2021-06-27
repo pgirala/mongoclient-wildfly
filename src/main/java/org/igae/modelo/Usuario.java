@@ -5,6 +5,10 @@ public class Usuario {
     private String name;
     private String email;
 
+    public Usuario() {
+
+    }
+
     public void setId(String id) {
         this.id = id;
     }
