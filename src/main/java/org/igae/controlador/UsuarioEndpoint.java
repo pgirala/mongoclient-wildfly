@@ -57,7 +57,8 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-        return "{\"token\":\"" + this.getToken(this.getCodigoUsuario(tokenKC)) + "\"}";
+        httpServletResponse.setHeader("x-jwt-token", this.getToken(this.getCodigoUsuario(tokenKC)));
+        return "{}";
     }
 
     @GET
@@ -73,7 +74,8 @@ public class UsuarioEndpoint {
             }
             return null;
         }
-        return "{\"token\":\"" + this.getToken(this.getCodigoOrganizacion(tokenKC)) + "\"}";
+        httpServletResponse.setHeader("x-jwt-token", this.getToken(this.getCodigoOrganizacion(tokenKC)));
+        return "{}";
     }
 
     /*
