@@ -58,8 +58,7 @@ public class UsuarioEndpoint {
             return null;
         }
         String codigoUsuario = this.getCodigoUsuario(tokenKC);
-        httpServletResponse.setHeader("x-jwt-token", this.getToken(codigoUsuario));
-        return "{\"codigoUsuario\": \"" + codigoUsuario + "\"}";
+        return "{\"codigoUsuario\": \"" + codigoUsuario + "\", \"token\": \"" + this.getToken(codigoUsuario) + "\"}";
     }
 
     @GET
@@ -76,8 +75,7 @@ public class UsuarioEndpoint {
             return null;
         }
         String codigoUsuario = this.getCodigoOrganizacion(tokenKC);
-        httpServletResponse.setHeader("x-jwt-token", this.getToken(codigoUsuario));
-        return "{\"codigoUsuario\": \"" + codigoUsuario + "\"}";
+        return "{\"codigoUsuario\": \"" + codigoUsuario + "\", \"token\": \"" + this.getToken(codigoUsuario) + "\"}";
     }
 
     /*
