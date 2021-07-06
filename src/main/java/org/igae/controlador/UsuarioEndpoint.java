@@ -8,6 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.tagext.BodyContent;
 
+import java.io.File;
+import java.io.FileInputStream;
+
 import java.util.Base64;
 import java.util.HashMap;
 
@@ -16,6 +19,7 @@ import javax.ws.rs.core.*;
 import javax.ws.rs.client.*;
 import javax.ws.rs.client.Entity;
 import java.util.List;
+import java.util.Properties;
 import com.mongodb.BasicDBObject;
 
 import org.igae.servicio.UsuarioService;
@@ -35,6 +39,16 @@ public class UsuarioEndpoint {
     private HttpServletRequest httpServletRequest;
     @Context
     private HttpServletResponse httpServletResponse;
+
+    Properties props = new Properties();;
+
+    {
+        try {
+            String realPath = servletContext.getRealPath("/WEB-INF/application.properties");
+            props.load(new FileInputStream(new File(realPath)));
+        } catch (Exception e) {
+        }
+    }
 
     @Inject
     UsuarioService service;
@@ -120,7 +134,7 @@ public class UsuarioEndpoint {
     private String getToken(String codigoUsuario) {
         try {
             Client cliente = ClientBuilder.newClient();
-            WebTarget recurso = cliente.target("http://formio:3001/user/login"); // TODO a un fichero de properties
+            WebTarget recurso = cliente.target(this.props.getProperty("FI_HOST") + "/user/login");
             Payload payload = new Payload();
             payload.setData(this.getAcreditacion(codigoUsuario));
             Response respuesta = recurso.request().post(Entity.json(payload.toString()));
