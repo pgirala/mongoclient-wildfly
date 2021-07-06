@@ -9,7 +9,7 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.jsp.tagext.BodyContent;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.InputStream;
 
 import java.util.Base64;
 import java.util.HashMap;
@@ -39,16 +39,6 @@ public class UsuarioEndpoint {
     private HttpServletRequest httpServletRequest;
     @Context
     private HttpServletResponse httpServletResponse;
-
-    Properties props = new Properties();;
-
-    {
-        try {
-            String realPath = servletContext.getRealPath("/WEB-INF/application.properties");
-            props.load(new FileInputStream(new File(realPath)));
-        } catch (Exception e) {
-        }
-    }
 
     @Inject
     UsuarioService service;
@@ -134,7 +124,7 @@ public class UsuarioEndpoint {
     private String getToken(String codigoUsuario) {
         try {
             Client cliente = ClientBuilder.newClient();
-            WebTarget recurso = cliente.target(this.props.getProperty("FI_HOST") + "/user/login");
+            WebTarget recurso = cliente.target(this.getProperties().getProperty("FI_HOST") + "/user/login");
             Payload payload = new Payload();
             payload.setData(this.getAcreditacion(codigoUsuario));
             Response respuesta = recurso.request().post(Entity.json(payload.toString()));
@@ -144,9 +134,20 @@ public class UsuarioEndpoint {
         }
     }
 
+    private Properties getProperties() {
+        Properties prop = new Properties();
+        try {
+            InputStream inputStream = servletContext.getResourceAsStream("/WEB-INF/application.properties");
+            prop.load(inputStream);
+        } catch (Exception e) {
+        }
+        return prop;
+    }
+
     private Acreditacion getAcreditacion(String codigoUsuario) {
         Acreditacion acreditacion = new Acreditacion();
-        acreditacion.setEmail(codigoUsuario + "@gob.es"); // TODO a un fichero de properties
+        acreditacion.setEmail(codigoUsuario + "@" + this.getProperties().getProperty("user.domain"));
+        acreditacion.setPassword(this.getProperties().getProperty("user.password"));
         return acreditacion;
     }
 }

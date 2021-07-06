@@ -2,7 +2,7 @@ package org.igae.modelo;
 
 public class Acreditacion {
     private String email;
-    private String password = "CHANGEME"; // TODO ponerlo en un properties y quitarlo de Keycloak
+    private String password;
 
     public Acreditacion() {
 
@@ -14,6 +14,10 @@ public class Acreditacion {
 
     public String getEmail() {
         return this.email;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getPassword() {
