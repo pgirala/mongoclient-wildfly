@@ -24,8 +24,8 @@ import org.igae.modelo.Usuario;
 import org.igae.modelo.Payload;
 
 @Path("/usuarios")
-// @Produces("application/json")
-// @Consumes("application/json")
+@Produces("application/json")
+@Consumes("application/json")
 public class UsuarioEndpoint {
     @Context
     private ServletConfig servletConfig;
