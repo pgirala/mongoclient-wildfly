@@ -45,25 +45,24 @@ public class DocumentoService {
         return equivalencias;
     }
 
-    public List<Document> replicarDocumentos(List<Document> listaDocumentos, String antiguoPropietario,
-            String nuevoPropietario, Hashtable<ObjectId, ObjectId> equivalencias) {
+    public List<Document> replicarDocumentos(List<Document> listaDocumentos, String nuevoPropietario,
+            Hashtable<ObjectId, ObjectId> equivalencias) {
 
         List<Document> resultado = new ArrayList<Document>();
 
         for (Document documento : listaDocumentos) {
-            Document replica = replicarDocumento(documento, antiguoPropietario, nuevoPropietario, equivalencias);
+            Document replica = replicarDocumento(documento, nuevoPropietario, equivalencias);
             resultado.add(replica);
         }
 
         return resultado;
     }
 
-    public Document replicarDocumento(Document documento, String antiguoPropietario, String nuevoPropietario,
+    public Document replicarDocumento(Document documento, String nuevoPropietario,
             Hashtable<ObjectId, ObjectId> equivalencias) {
         Document duplicado = getClone(documento, equivalencias);
         duplicado.replace("_id", documento.getObjectId("_id"), equivalencias.get(documento.getObjectId("_id")));
         duplicado.replace("owner", new ObjectId(nuevoPropietario));
-        duplicado.append("previousOwner", new ObjectId(antiguoPropietario));
         return duplicado;
     }
 
@@ -107,14 +106,15 @@ public class DocumentoService {
     }
 
     public List<Document> getListaDocumentosPoseidos(String idPropietario, String dominio) {
+        // excluye los documentos asociados a envíos
         Bson filtro = and(in("form", formService.getIdFormularios(dominio)), eq("owner", new ObjectId(idPropietario)),
-                ne("form", formService.getIdFormularioEnvio()), getFiltroSalvaguarda());
+                ne("form", formService.getIdFormularioEnvio()), eq("envio", null), getFiltroSalvaguarda());
         return this.getListaDocumentos(filtro);
     }
 
     private Bson getFiltroSalvaguarda() {
         // evita que se borren los datos de los usuarios y de los administradores
-        // además solo considera los borrados
+        // además solo considera los no borrados
         return and(ne("form", formService.getIdFormularioUsuario()), ne("form", formService.getIdFormularioAdmin()),
                 eq("deleted", null));
     }

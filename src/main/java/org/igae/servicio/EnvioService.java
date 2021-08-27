@@ -72,8 +72,57 @@ public class EnvioService {
         System.out.println("====================>");
     }
 
-    public void perfeccionarEnvio(String idEnvio) {
+    public void asociarEnvio(List<Document> listaDocumentos, Envio envio) {
+        for (Document documento : listaDocumentos) {
+            documento.append("envio", new ObjectId(envio.getId()));
+        }
+    }
+
+    public void enviar(String idEnvio) {
+        // envío en el lado del remitente
         Envio envio = this.obtenerEnvio(idEnvio);
+        Usuario remitente = usuarioService.findOne(envio.getIdRemitente());
+        Usuario destinatario = usuarioService.findOne(envio.getIdDestinatario());
+        // se incluye en el resumen el remitente
+        documentoService.actualizar(envio.getId(), "data.resumen",
+                "De " + ((remitente == null || remitente.getName() == null) ? " - " : remitente.getName()) + " a "
+                        + ((destinatario == null || destinatario.getName() == null) ? " - " : destinatario.getName()));
+        documentoService.actualizar(envio.getId(), "data.momentoEnvio", envio.getMomentoEnvio());
+
+        // se replican los documentos enviados por el remitente
+        List<Document> listaDocumentos = documentoService.getListaDocumentosPoseidos(envio.getIdRemitente(),
+                envio.getDominio());
+        Hashtable<ObjectId, ObjectId> equivalenciasRemitente = documentoService.obtenerNuevosIds(listaDocumentos);
+        List<Document> listaReplicasRemitente = documentoService.replicarDocumentos(listaDocumentos,
+                envio.getIdRemitente(), equivalenciasRemitente);
+        asociarEnvio(listaReplicasRemitente, envio);
+        documentoService.insertarDocumentos(listaReplicasRemitente);
+
+        // envío en el lado del destinatario
+
+        // se replica el envío pero poniendo como propietario al receptor para que lo
+        // vea en su lista de envíos
+
+        Document documentoEnvio = documentoService.getDocumento(idEnvio);
+        Hashtable<ObjectId, ObjectId> correspondenciaId = new Hashtable<ObjectId, ObjectId>();
+        correspondenciaId.put(new ObjectId(idEnvio), new ObjectId());
+        Document envioDuplicado = documentoService.replicarDocumento(documentoEnvio, envio.getIdDestinatario(),
+                correspondenciaId);
+        envioDuplicado.append("envio", new ObjectId(envio.getId())); // mantiene el nexo con el original
+        documentoService.insertarDocumento(envioDuplicado);
+
+        // se replican los documentos pendientes de recibir por el destinatario
+        Hashtable<ObjectId, ObjectId> equivalenciasDestinatario = documentoService.obtenerNuevosIds(listaDocumentos);
+        List<Document> listaReplicasDestinatario = documentoService.replicarDocumentos(listaDocumentos,
+                envio.getIdDestinatario(), equivalenciasDestinatario);
+        Envio envioReplica = this.obtenerEnvio(envioDuplicado.getObjectId("_id").toString());
+        asociarEnvio(listaReplicasDestinatario, envioReplica);
+        documentoService.insertarDocumentos(listaReplicasDestinatario);
+    }
+
+    public void recibir(String idEnvio) {
+        Envio envio = this.obtenerEnvio(idEnvio);
+        Envio envioOriginal = this.obtenerEnvio(envio.getId());
 
         List<Document> listaDocumentos = documentoService.getListaDocumentosPoseidos(envio.getIdRemitente(),
                 envio.getDominio());

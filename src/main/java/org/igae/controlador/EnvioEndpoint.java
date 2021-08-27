@@ -21,12 +21,22 @@ public class EnvioEndpoint {
     EnvioService service;
 
     @POST
-    public HashMap add(HashMap mensaje) {
+    public HashMap enviar(HashMap mensaje) {
         HashMap resultado = new HashMap();
         String idEnvio = (String) mensaje.get("submissionId");
-        service.perfeccionarEnvio(idEnvio);
+        service.enviar(idEnvio);
         resultado.put("success", true);
         resultado.put("message", "Envío realizado correctamente.");
+        return resultado;
+    }
+
+    @POST
+    public HashMap recibir(HashMap mensaje) {
+        HashMap resultado = new HashMap();
+        String idEnvio = (String) mensaje.get("submissionId");
+        service.recibir(idEnvio);
+        resultado.put("success", true);
+        resultado.put("message", "Recepción realizada correctamente.");
         return resultado;
     }
 }
